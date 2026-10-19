@@ -1,0 +1,91 @@
+extends layouts/default.pug
+
+include partials/icons.pug
+include partials/pagination.pug
+
+block content
+  -
+    const actionRows = [
+      [1, "Quạt", "ON", "SUCCESS", "01-01-2026 12:00:10"],
+      [2, "Đèn", "ON", "WAITING", "01-01-2026 12:00:08"],
+      [2, "Đèn", "OFF", "SUCCESS", "01-01-2026 12:00:06"],
+      [3, "Điều hòa", "ON", "SUCCESS", "01-01-2026 12:00:04"],
+      [1, "Quạt", "ON", "FAILED", "01-01-2026 12:00:03"],
+      [2, "Đèn", "ON", "SUCCESS", "01-01-2026 12:00:00"],
+      [3, "Điều hòa", "OFF", "SUCCESS", "01-01-2026 11:59:58"],
+      [1, "Quạt", "OFF", "SUCCESS", "01-01-2026 11:59:56"],
+      [2, "Đèn", "OFF", "FAILED", "01-01-2026 11:59:54"],
+      [3, "Điều hòa", "ON", "WAITING", "01-01-2026 11:59:52"]
+    ];
+
+  .ds-page
+    .ha-toolbar
+      .ha-search-wrap
+        input#ha-search(
+          type="text"
+          placeholder="Search..."
+          autocomplete="off"
+        )
+        +searchIcon()
+
+      .ha-filters
+        .ha-filter-group
+          label(for="ha-device") Device
+
+          select#ha-device.ha-select
+            option(value="ALL") ALL
+            option(value="Quạt") Quạt
+            option(value="Đèn") Đèn
+            option(value="Điều hòa") Điều hòa
+
+        .ha-filter-group
+          label(for="ha-action") Action
+
+          select#ha-action.ha-select
+            option(value="ALL") ALL
+            option(value="ON") ON
+            option(value="OFF") OFF
+
+        .ha-filter-group
+          label(for="ha-status") Status
+
+          select#ha-status.ha-select
+            option(value="ALL") ALL
+            option(value="SUCCESS") SUCCESS
+            option(value="FAILED") FAILED
+            option(value="WAITING") WAITING
+
+        .ha-filter-group
+          label(for="ha-sort") Sort
+
+          select#ha-sort.ha-select
+            option(value="Newest") Newest
+            option(value="Oldest") Oldest
+
+    .ha-table-wrap
+      table.ha-table
+        thead
+          tr
+            th Device ID
+            th Device Name
+            th Action
+            th Status
+            th Time
+
+        tbody#ha-table-body
+          each row in actionRows
+            tr
+              td.ha-col-id= row[0]
+              td.ha-col-name= row[1]
+
+              td.ha-col-action(class="action-" + row[2].toLowerCase())= row[2]
+
+              td.ha-col-status(class="status-" + row[3].toLowerCase())
+                = row[3] === "WAITING" ? "WAITING..." : row[3]
+
+              td.ha-col-time= row[4]
+
+    +pagination("ha-pagination")
+
+block scripts
+  script(src="/js/history-action.js")

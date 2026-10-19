@@ -1,0 +1,74 @@
+extends layouts/default.pug
+
+include partials/icons.pug
+include partials/pagination.pug
+
+block content
+  -
+    const sensorRows = [
+      [1, "DHT11", "Temp", "37°C", "01-01-2026 12:00:09"],
+      [1, "DHT11", "Hum", "50%", "01-01-2026 12:00:09"],
+      [2, "LDR", "Lux", "800", "01-01-2026 12:00:09"],
+      [1, "DHT11", "Temp", "36°C", "01-01-2026 12:00:07"],
+      [1, "DHT11", "Hum", "51%", "01-01-2026 12:00:07"],
+      [2, "LDR", "Lux", "850", "01-01-2026 12:00:07"],
+      [1, "DHT11", "Temp", "38°C", "01-01-2026 12:00:05"],
+      [1, "DHT11", "Hum", "49%", "01-01-2026 12:00:05"],
+      [2, "LDR", "Lux", "820", "01-01-2026 12:00:05"],
+      [1, "DHT11", "Temp", "35°C", "01-01-2026 12:00:03"]
+    ];
+
+  .ds-page
+    .ds-toolbar
+      .ds-search-wrap(style="max-width:360px;")
+        input#ds-search(
+          type="text"
+          placeholder="Search..."
+          autocomplete="off"
+        )
+        +searchIcon()
+
+      .ds-filter-group
+        label(for="ds-search-by") Search by
+
+        select#ds-search-by.ds-select
+          option(value="ALL") ALL
+          option(value="Temp") Temperature
+          option(value="Hum") Humidity
+          option(value="Lux") Light
+          option(value="Time") Time
+
+      .ds-filter-group
+        label(for="ds-sort") Sort
+
+        select#ds-sort.ds-select
+          option(value="Newest") Newest
+          option(value="Oldest") Oldest
+
+      button#ds-reset.ds-reset-btn(type="button") Đặt lại
+
+    .ds-table-wrap
+      table.ds-table
+        thead
+          tr
+            th SENSOR ID
+            th SENSOR
+            th Type
+            th Value
+            th Time
+
+        tbody#ds-table-body
+          each row in sensorRows
+            - const typeClass = row[2].toLowerCase();
+
+            tr
+              td= row[0]
+              td= row[1]
+              td(class="type-" + typeClass)= row[2]
+              td(class="val-" + typeClass)= row[3]
+              td.col-time= row[4]
+
+    +pagination("ds-pagination")
+
+block scripts
+  script(src="/js/data-sensor.js")

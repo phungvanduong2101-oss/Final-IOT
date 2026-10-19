@@ -1,0 +1,86 @@
+extends layouts/default.pug
+
+include partials/icons.pug
+
+block content
+  main.dashboard
+    section.charts-section
+      .sensor-card
+        .sensor-info.temp-info
+          .sensor-label Nhiệt độ
+
+          .sensor-icon
+            +temperatureIcon()
+
+          #temp-value.sensor-value --°C
+
+        .chart-wrapper
+          canvas#tempChart
+
+      .sensor-card
+        .sensor-info.humid-info
+          .sensor-label Độ ẩm
+
+          .sensor-icon
+            +humidityIcon()
+
+          #humid-value.sensor-value.humid-val --%
+
+        .chart-wrapper
+          canvas#humidChart
+
+      .sensor-card
+        .sensor-info.light-info
+          .sensor-label Ánh sáng
+
+          .sensor-icon
+            +sunlightIcon()
+
+          #light-value.sensor-value.light-val -- LX
+
+        .chart-wrapper
+          canvas#lightChart
+
+    aside.devices-section
+      .devices-header
+        span.gear-icon ⚙️
+        span Device controls
+
+      #device-fan.device-card
+        .device-icon-wrap
+          +fanIcon()
+
+        .device-info
+          span.device-name Quạt
+
+          label.toggle-switch
+            input#fan-toggle(type="checkbox" checked)
+            span.slider.fan-slider
+
+      #device-ac.device-card
+        .device-icon-wrap
+          +acIcon()
+
+        .device-info
+          span.device-name Điều hòa
+
+          label.toggle-switch
+            input#ac-toggle(type="checkbox" checked)
+            span.slider.ac-slider
+
+      #device-light.device-card
+        .device-icon-wrap
+          +bulbIcon()
+
+        .device-info
+          span.device-name Đèn
+
+          label.toggle-switch
+            input#light-toggle(type="checkbox" checked)
+            span.slider.light-slider
+
+block scripts
+  script(src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js")
+  script(src="/js/charts.js")
+  script(src="/js/devices.js")
+  script(src="/js/main.js")

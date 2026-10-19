@@ -1,0 +1,10 @@
+mixin pagination(className)
+  div(class=className)
+    button.pg-btn(type="button" disabled) <
+    button.pg-btn.active(type="button") 1
+    button.pg-btn(type="button") 2
+    button.pg-btn(type="button") 3
+    button.pg-btn.pg-dots(type="button" disabled) ...
+    button.pg-btn(type="button") 36
+    button.pg-btn(type="button") 37
+    button.pg-btn(type="button") >
