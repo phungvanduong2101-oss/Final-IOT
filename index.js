@@ -1,7 +1,9 @@
 require("dotenv").config();
 const sequelize = require("./config/database");
 const webRoutes = require("./routes/web.route");
+require("dotenv").config();
 
+const mqttClient = require("./config/mqtt");
 const express = require("express");
 const path = require("path");
 
@@ -21,7 +23,7 @@ app.set("views", path.join(__dirname, "views"));
 
 // Routes
 app.use("/", webRoutes);  
-//app.use("/api", require("./routes/api.route"));
+app.use("/api", require("./routes/api.route"));
 
 // Kết nối Database và khởi động Server
 async function startServer() {

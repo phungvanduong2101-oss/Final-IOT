@@ -15,13 +15,6 @@ const CHART_DEFAULTS = {
   pointHoverRadius: 4,
 };
 
-/* ── Helper: format current time as HH:mm:ss ─────────────────────────── */
-function getTimeLabel() {
-  const now = new Date();
-  const pad = n => String(n).padStart(2, '0');
-  return `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-}
-
 /* ── Helper: build dashed grid line plugin options ───────────────────── */
 function gridOptions() {
   return {
@@ -29,36 +22,6 @@ function gridOptions() {
     lineWidth: 1,
     borderDash: [4, 4],
   };
-}
-
-/* ── Helper: create initial dummy history ────────────────────────────── */
-function generateInitialData(min, max, count = 10) {
-  return Array.from({ length: count }, () =>
-    parseFloat((Math.random() * (max - min) + min).toFixed(1))
-  );
-}
-
-function generateInitialLabels(count = 10) {
-  const labels = [];
-  const now = new Date();
-  for (let i = count - 1; i >= 0; i--) {
-    const t = new Date(now.getTime() - i * 2000);
-    const pad = n => String(n).padStart(2, '0');
-    labels.push(`${pad(t.getHours())}:${pad(t.getMinutes())}:${pad(t.getSeconds())}`);
-  }
-  return labels;
-}
-
-/* ── Push a new point; keep only the last N ──────────────────────────── */
-function pushDataPoint(chart, label, value) {
-  const { data } = chart;
-  data.labels.push(label);
-  data.datasets[0].data.push(value);
-  if (data.labels.length > CHART_DEFAULTS.maxPoints) {
-    data.labels.shift();
-    data.datasets[0].data.shift();
-  }
-  chart.update('none'); // skip animation for smooth live feel
 }
 
 /* ────────────────────────────────────────────────────────────────────── */
@@ -69,10 +32,10 @@ function createTempChart() {
   return new Chart(ctx, {
     type: 'line',
     data: {
-      labels:   generateInitialLabels(),
+      labels:   [],
       datasets: [{
         label:       'Nhiệt độ (°C)',
-        data:        generateInitialData(15, 40),
+        data:        [],
         borderColor: '#f44336',
         backgroundColor: 'rgba(244,67,54,0.08)',
         fill:        true,
@@ -118,10 +81,10 @@ function createHumidChart() {
   return new Chart(ctx, {
     type: 'line',
     data: {
-      labels:   generateInitialLabels(),
+      labels:   [],
       datasets: [{
         label:       'Độ ẩm (%)',
-        data:        generateInitialData(30, 80),
+        data:        [],
         borderColor: '#2196F3',
         backgroundColor: 'rgba(33,150,243,0.08)',
         fill:        true,
@@ -167,10 +130,10 @@ function createLightChart() {
   return new Chart(ctx, {
     type: 'line',
     data: {
-      labels:   generateInitialLabels(),
+      labels:   [],
       datasets: [{
         label:       'Ánh sáng (Lux)',
-        data:        generateInitialData(400, 900),
+        data:        [],
         borderColor: '#FFC107',
         backgroundColor: 'rgba(255,193,7,0.08)',
         fill:        true,
@@ -211,30 +174,34 @@ function createLightChart() {
 /* ── Public API ──────────────────────────────────────────────────────── */
 const ChartsModule = (() => {
   let tempChart, humidChart, lightChart;
-
+ 
   function init() {
     tempChart  = createTempChart();
     humidChart = createHumidChart();
     lightChart = createLightChart();
   }
 
-  /**
-   * Add a new data point to all charts and return the latest values.
-   * @returns {{ temp: number, humid: number, light: number }}
-   */
-  function update() {
-    const label = getTimeLabel();
+  // rows are persisted SensorData records, ordered by created_at.
+function update(data) {
+  const charts = {
+    Temperature: tempChart,
+    Humidity: humidChart,
+    Light: lightChart,
+  };
 
-    const temp  = parseFloat((Math.random() * 25 + 15).toFixed(1));   // 15–40 °C
-    const humid = parseFloat((Math.random() * 50 + 30).toFixed(1));   // 30–80 %
-    const light = Math.round(Math.random() * 500 + 400);              // 400–900 Lux
+  Object.entries(charts).forEach(([type, chart]) => {
+    // Backend trả mới nhất trước → đảo lại để vẽ cũ đến mới.
+    const rows = [...data[type]].reverse();
 
-    pushDataPoint(tempChart,  label, temp);
-    pushDataPoint(humidChart, label, humid);
-    pushDataPoint(lightChart, label, light);
+    chart.data.labels = rows.map(row =>
+      new Date(row.created_at).toLocaleTimeString("vi-VN")
+    );
 
-    return { temp, humid, light };
-  }
+    chart.data.datasets[0].data = rows.map(row => row.value);
+
+    chart.update("none");
+  });
+}
 
   return { init, update };
 })();

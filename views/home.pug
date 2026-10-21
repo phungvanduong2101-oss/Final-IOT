@@ -3,6 +3,7 @@ extends layouts/default.pug
 include partials/icons.pug
 
 block content
+  p#dashboard-message(role="status" aria-live="polite")
   main.dashboard
     section.charts-section
       .sensor-card
@@ -54,7 +55,7 @@ block content
           span.device-name Quạt
 
           label.toggle-switch
-            input#fan-toggle(type="checkbox" checked)
+            input#fan-toggle(type="checkbox" disabled)
             span.slider.fan-slider
 
       #device-ac.device-card
@@ -65,7 +66,7 @@ block content
           span.device-name Điều hòa
 
           label.toggle-switch
-            input#ac-toggle(type="checkbox" checked)
+            input#ac-toggle(type="checkbox" disabled)
             span.slider.ac-slider
 
       #device-light.device-card
@@ -76,11 +77,9 @@ block content
           span.device-name Đèn
 
           label.toggle-switch
-            input#light-toggle(type="checkbox" checked)
+            input#light-toggle(type="checkbox" disabled)
             span.slider.light-slider
 
 block scripts
   script(src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js")
-  script(src="/js/charts.js")
-  script(src="/js/devices.js")
-  script(src="/js/main.js")
+  script(src="/js/home.js")

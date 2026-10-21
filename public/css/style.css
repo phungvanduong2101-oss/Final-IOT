@@ -376,7 +376,7 @@ body {
   position: relative;
   flex: 1 1 200px;
   max-width: 280px;  
-  margin-right: 400px;
+  margin-right: 200px;
 }
 
 .ds-search-wrap svg.search-icon {
@@ -632,8 +632,9 @@ body {
 .ha-filters {
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr ;
-  gap: 10px 16px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr ;
+  gap: 10px 16px; 
+  max-width: 600px;
 }
 
 .ha-filter-group {
@@ -782,32 +783,40 @@ body {
   }
 }
  
-
-.device-card.loading {
-  opacity: 0.6;
-  pointer-events: none;
-  cursor: wait;
-} 
-
-.device-card.loading {
+.device-card {
   position: relative;
-  opacity: 0.6;
-  pointer-events: none;
 }
 
-.loading-text {
+.device-card.loading {
+  pointer-events: none;
+  cursor: wait;
+}
+
+/* Làm mờ icon và nút, giữ thông báo rõ */
+.device-card.loading > :not(.loading-text) {
+  opacity: 0.3;
+}
+
+.device-card .loading-text {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-
-  background: white;
-  color: #333;
-  padding: 10px 20px;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  margin: 0;
+  padding: 8px 12px;
   border-radius: 8px;
-  font-size: 16px;
-  font-weight: bold;
+  background: #fff;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
   z-index: 10;
+}
+
+.device-card .loading-text:empty {
+  display: none;
 }
 
 /* ── Reset button (DATA SENSOR toolbar) ────────────────────────────── */
@@ -829,4 +838,28 @@ body {
   background: #f0f4ff;
   border-color: #2196F3;
   color: #2196F3;
+} 
+.ds-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.ds-summary {
+  font-size: 14px;
+  color: #666;
+}
+
+.ds-table-footer .ds-pagination {
+  margin-top: 0;
+}
+
+@media (max-width: 600px) {
+  .ds-table-footer {
+    flex-direction: column;
+    gap: 12px;
+  }
 }
