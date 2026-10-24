@@ -2,6 +2,8 @@ const mqtt = require("mqtt");
 const { SensorData } = require("../models");
 const { Device } = require("../models");
 const { ActionHistory } = require("../models");
+const { getIO } = require("./socket");
+
 const client = mqtt.connect(process.env.MQTT_URL, {
     username: process.env.MQTT_USERNAME,
     password: process.env.MQTT_PASSWORD,
@@ -71,8 +73,12 @@ client.on("message", async (topic, message) => {
                 }
 
             }
-            await SensorData.bulkCreate(records);
+            const savedRecords = await SensorData.bulkCreate(records);
 
+            getIO().emit(
+                "sensors:update",
+                savedRecords.map(row => row.toJSON())
+            );
         }
 
         if (topic === "device/status") {

@@ -1,22 +1,27 @@
-/* =============================================
-   RESET & BASE
-   ============================================= */
-*, *::before, *::after {
+/* =========================================================
+   1. DÙNG CHUNG — RESET & BASE
+   ========================================================= */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 body {
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: "Segoe UI", Arial, sans-serif;
   background-color: #f0f2f5;
   color: #333;
   min-height: 100vh;
 }
 
-/* =============================================
-   NAVBAR
-   ============================================= */
+
+/* =========================================================
+   2. DÙNG CHUNG — NAVBAR
+   ========================================================= */
+
 .navbar {
   background: #fff;
   border-bottom: 2px solid #e0e0e0;
@@ -24,7 +29,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .nav-list {
@@ -56,9 +61,62 @@ body {
   font-weight: 700;
 }
 
-/* =============================================
-   DASHBOARD LAYOUT
-   ============================================= */
+
+/* =========================================================
+   3. DÙNG CHUNG — NÚT PHÂN TRANG
+   DATA SENSOR và HISTORY ACTION cùng sử dụng
+   ========================================================= */
+
+.pg-btn {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1.5px solid #d0d0d0;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pg-btn:hover:not(:disabled):not(.pg-dots) {
+  background: #f0f4ff;
+  border-color: #2196f3;
+  color: #2196f3;
+}
+
+.pg-btn.active {
+  background: #000;
+  border-color: #000;
+  color: #fff;
+  cursor: default;
+}
+
+.pg-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pg-dots {
+  border: none;
+  background: transparent;
+  cursor: default;
+  letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   4. HOME — BỐ CỤC DASHBOARD
+   ========================================================= */
+
 .dashboard {
   display: flex;
   gap: 16px;
@@ -68,9 +126,6 @@ body {
   align-items: flex-start;
 }
 
-/* =============================================
-   CHARTS SECTION (LEFT 70%)
-   ============================================= */
 .charts-section {
   flex: 0 0 70%;
   display: flex;
@@ -78,20 +133,32 @@ body {
   gap: 14px;
 }
 
-/* =============================================
-   SENSOR CARD
-   ============================================= */
+.devices-section {
+  flex: 0 0 30%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+
+/* =========================================================
+   5. HOME — THẺ CẢM BIẾN VÀ BIỂU ĐỒ
+   ========================================================= */
+
+/* Thẻ cảm biến */
+
 .sensor-card {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
   display: flex;
   align-items: stretch;
   overflow: hidden;
   min-height: 180px;
 }
 
-/* Left panel: icon + value */
+/* Thông tin cảm biến */
+
 .sensor-info {
   display: flex;
   flex-direction: column;
@@ -131,20 +198,44 @@ body {
   text-align: center;
 }
 
-/* Color themes per sensor */
-.temp-info   { border-right: 3px solid #ffd0d0; background: #fff8f8; }
-.temp-info .sensor-label { color: #f44336; }
-.temp-info .sensor-value { color: #f44336; }
+/* Nhiệt độ */
 
-.humid-info  { border-right: 3px solid #cce5ff; background: #f6faff; }
-.humid-info .sensor-label { color: #2196F3; }
-.humid-info .sensor-value { color: #2196F3; }
+.temp-info {
+  border-right: 3px solid #ffd0d0;
+  background: #fff8f8;
+}
 
-.light-info  { border-right: 3px solid #fff0cc; background: #fffdf4; }
-.light-info .sensor-label { color: #e6a800; }
-.light-info .sensor-value { color: #e6a800; }
+.temp-info .sensor-label,
+.temp-info .sensor-value {
+  color: #f44336;
+}
 
-/* Chart area */
+/* Độ ẩm */
+
+.humid-info {
+  border-right: 3px solid #cce5ff;
+  background: #f6faff;
+}
+
+.humid-info .sensor-label,
+.humid-info .sensor-value {
+  color: #2196f3;
+}
+
+/* Ánh sáng */
+
+.light-info {
+  border-right: 3px solid #fff0cc;
+  background: #fffdf4;
+}
+
+.light-info .sensor-label,
+.light-info .sensor-value {
+  color: #e6a800;
+}
+
+/* Vùng biểu đồ */
+
 .chart-wrapper {
   flex: 1;
   padding: 12px 16px 10px 8px;
@@ -157,20 +248,15 @@ body {
   height: 155px !important;
 }
 
-/* =============================================
-   DEVICES SECTION (RIGHT 30%)
-   ============================================= */
-.devices-section {
-  flex: 0 0 30%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+
+/* =========================================================
+   6. HOME — THẺ THIẾT BỊ
+   ========================================================= */
 
 .devices-header {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
   padding: 13px 18px;
   font-size: 1rem;
   font-weight: 700;
@@ -184,11 +270,11 @@ body {
   font-size: 1.15rem;
 }
 
-/* Device Card */
 .device-card {
+  position: relative;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
   padding: 18px 20px;
   display: flex;
   align-items: center;
@@ -197,7 +283,7 @@ body {
 }
 
 .device-card:hover {
-  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
 }
 
 .device-icon-wrap {
@@ -229,9 +315,63 @@ body {
   align-self: flex-end;
 }
 
-/* =============================================
-   TOGGLE SWITCH
-   ============================================= */
+/* Trạng thái OFF */
+
+.device-card.off .device-icon-wrap svg path,
+.device-card.off .device-icon-wrap svg circle,
+.device-card.off .device-icon-wrap svg rect,
+.device-card.off .device-icon-wrap svg line {
+  stroke: #bbb;
+  fill: #bbb;
+}
+
+.device-card.off .device-icon-wrap svg [fill="none"] {
+  fill: none;
+}
+
+.device-card.off .device-icon-wrap svg [fill="white"],
+.device-card.off .device-icon-wrap svg [fill="#eee"] {
+  fill: #f5f5f5;
+}
+
+/* Trạng thái loading */
+
+.device-card.loading {
+  pointer-events: none;
+  cursor: wait;
+}
+
+.device-card.loading > :not(.loading-text) {
+  opacity: 0.3;
+}
+
+.device-card .loading-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: max-content;
+  max-width: calc(100% - 24px);
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #fff;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  z-index: 10;
+}
+
+.device-card .loading-text:empty {
+  display: none;
+}
+
+
+/* =========================================================
+   7. HOME — CÔNG TẮC THIẾT BỊ
+   ========================================================= */
+
 .toggle-switch {
   position: relative;
   display: inline-block;
@@ -256,7 +396,7 @@ body {
 }
 
 .slider::before {
-  content: '';
+  content: "";
   position: absolute;
   width: 22px;
   height: 22px;
@@ -265,117 +405,58 @@ body {
   background: #fff;
   border-radius: 50%;
   transition: transform 0.3s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
 }
 
-/* Checked state: move knob right */
 .toggle-switch input:checked + .slider::before {
   transform: translateX(24px);
 }
 
-/* Per-device ON colors */
-.toggle-switch input:checked + .fan-slider   { background: #f44336; }
-.toggle-switch input:checked + .ac-slider    { background: #2196F3; }
-.toggle-switch input:checked + .light-slider { background: #FFC107; }
+/* Màu công tắc khi ON */
 
-/* Device card dimmed when OFF */
-.device-card.off .device-icon-wrap svg path,
-.device-card.off .device-icon-wrap svg circle,
-.device-card.off .device-icon-wrap svg rect,
-.device-card.off .device-icon-wrap svg line {
-  stroke: #bbb;
-  fill: #bbb;
-}
-.device-card.off .device-icon-wrap svg [fill="none"] {
-  fill: none;
-}
-.device-card.off .device-icon-wrap svg [fill="white"],
-.device-card.off .device-icon-wrap svg [fill="#eee"] {
-  fill: #f5f5f5;
+.toggle-switch input:checked + .fan-slider {
+  background: #f44336;
 }
 
-/* =============================================
-   RESPONSIVE
-   ============================================= */
-@media (max-width: 900px) {
-  .dashboard {
-    flex-direction: column;
-    padding: 14px 12px;
-  }
-  .charts-section,
-  .devices-section {
-    flex: 1 1 100%;
-    width: 100%;
-  }
-  .nav-list {
-    gap: 20px;
-  }
-  .nav-list a {
-    font-size: 0.8rem;
-  }
-  .devices-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .devices-header {
-    grid-column: 1 / -1;
-  }
+.toggle-switch input:checked + .ac-slider {
+  background: #2196f3;
 }
 
-@media (max-width: 600px) {
-  .sensor-info {
-    min-width: 88px;
-    max-width: 95px;
-    padding: 12px 8px;
-  }
-  .sensor-icon {
-    width: 48px;
-    height: 48px;
-  }
-  .sensor-value {
-    font-size: 1.3rem;
-  }
-  .device-card {
-    padding: 12px 14px;
-  }
-  .devices-section {
-    grid-template-columns: 1fr;
-  }
-  .nav-list {
-    gap: 12px;
-    flex-wrap: wrap;
-    height: auto;
-    padding: 8px 0;
-  }
+.toggle-switch input:checked + .light-slider {
+  background: #ffc107;
 }
 
-/* =================================================================
-   DATA SENSOR PAGE — additional styles
-   (appended; does not override any existing HOME styles)
-   ================================================================= */
 
-/* ── Page wrapper ──────────────────────────────────────────────────── */
+/* =========================================================
+   8. DATA SENSOR — KHUNG TRANG
+   .ds-page cũng có thể dùng làm khung HISTORY ACTION
+   ========================================================= */
+
 .ds-page {
   max-width: 1100px;
   margin: 0 auto;
   padding: 28px 24px 48px;
 }
 
-/* ── Toolbar (search + filters) ────────────────────────────────────── */
+
+/* =========================================================
+   9. DATA SENSOR — THANH TÌM KIẾM VÀ BỘ LỌC
+   ========================================================= */
+
 .ds-toolbar {
   display: flex;
   align-items: center;
   gap: 14px;
   margin-bottom: 20px;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
 }
 
-/* Search box */
+/* Ô tìm kiếm */
+
 .ds-search-wrap {
   position: relative;
   flex: 1 1 200px;
-  max-width: 280px;  
+  max-width: 280px;
   margin-right: 200px;
 }
 
@@ -401,18 +482,22 @@ body {
   transition: border-color 0.2s;
 }
 
-#ds-search::placeholder { color: #aaa; }
-#ds-search:focus { border-color: #2196F3; }
+#ds-search::placeholder {
+  color: #aaa;
+}
 
-/* Filter group label + select */
+#ds-search:focus {
+  border-color: #2196f3;
+}
+
+/* Bộ lọc */
+
 .ds-filter-group {
   display: flex;
   align-items: center;
   gap: 6px;
-  white-space: nowrap; 
- 
-} 
-
+  white-space: nowrap;
+}
 
 .ds-filter-group label {
   font-size: 0.88rem;
@@ -434,14 +519,45 @@ body {
   min-width: 90px;
 }
 
-.ds-select:focus { border-color: #2196F3; }
+.ds-select:focus {
+  border-color: #2196f3;
+}
 
-/* ── Data Table ────────────────────────────────────────────────────── */
+/* Nút đặt lại */
+
+.ds-reset-btn {
+  padding: 8px 16px;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+  align-self: center;
+}
+
+.ds-reset-btn:hover {
+  background: #f0f4ff;
+  border-color: #2196f3;
+  color: #2196f3;
+}
+
+
+/* =========================================================
+   10. DATA SENSOR — BẢNG DỮ LIỆU
+   ========================================================= */
+
 .ds-table-wrap {
   width: 100%;
   overflow-x: auto;
   border-radius: 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.09);
 }
 
 .ds-table {
@@ -452,7 +568,8 @@ body {
   min-width: 560px;
 }
 
-/* Header */
+/* Tiêu đề bảng */
+
 .ds-table thead tr {
   background: #1a2238;
 }
@@ -467,17 +584,24 @@ body {
   white-space: nowrap;
 }
 
-.ds-table thead th:first-child { text-align: center; }
+/* Các hàng dữ liệu */
 
-/* Body rows */
 .ds-table tbody tr {
   border-bottom: 1px solid #e8e8e8;
   transition: background 0.15s;
 }
 
-.ds-table tbody tr:nth-child(even) { background: #f7f8fa; }
-.ds-table tbody tr:nth-child(odd)  { background: #fff; }
-.ds-table tbody tr:hover           { background: #eef4ff; }
+.ds-table tbody tr:nth-child(even) {
+  background: #f7f8fa;
+}
+
+.ds-table tbody tr:nth-child(odd) {
+  background: #fff;
+}
+
+.ds-table tbody tr:hover {
+  background: #eef4ff;
+}
 
 .ds-table tbody td {
   padding: 13px 18px;
@@ -486,7 +610,8 @@ body {
   font-weight: 500;
 }
 
-/* Column alignment tweaks */
+/* Cột thời gian */
+
 .ds-table td.col-time {
   text-align: center;
   color: #555;
@@ -494,17 +619,32 @@ body {
   white-space: nowrap;
 }
 
-/* Type color badges — .ds-table td.X wins over .ds-table tbody td */
-.ds-table td.type-temp { color: #FF0000; font-weight: 700; }
-.ds-table td.type-hum  { color: #0099FF; font-weight: 700; }
-.ds-table td.type-lux  { color: #F4B400; font-weight: 700; }
+/* Màu loại cảm biến và giá trị */
 
-/* Value colors mirror type */
-.ds-table td.val-temp  { color: #FF0000; font-weight: 700; }
-.ds-table td.val-hum   { color: #0099FF; font-weight: 700; }
-.ds-table td.val-lux   { color: #FFB800; font-weight: 700; }
+.ds-table td.type-temp,
+.ds-table td.val-temp {
+  color: #ff0000;
+  font-weight: 700;
+}
 
-/* Empty state */
+.ds-table td.type-hum,
+.ds-table td.val-hum {
+  color: #0099ff;
+  font-weight: 700;
+}
+
+.ds-table td.type-lux {
+  color: #f4b400;
+  font-weight: 700;
+}
+
+.ds-table td.val-lux {
+  color: #ffb800;
+  font-weight: 700;
+}
+
+/* Bảng không có dữ liệu */
+
 .ds-table .empty-row td {
   text-align: center;
   color: #999;
@@ -512,7 +652,25 @@ body {
   font-size: 0.95rem;
 }
 
-/* ── Pagination ────────────────────────────────────────────────────── */
+
+/* =========================================================
+   11. DATA SENSOR — FOOTER VÀ PHÂN TRANG
+   ========================================================= */
+
+.ds-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.ds-summary {
+  font-size: 14px;
+  color: #666;
+}
+
 .ds-pagination {
   display: flex;
   justify-content: flex-end;
@@ -522,71 +680,15 @@ body {
   flex-wrap: wrap;
 }
 
-.pg-btn {
-  min-width: 34px;
-  height: 34px;
-  padding: 0 8px;
-  border: 1.5px solid #d0d0d0;
-  border-radius: 6px;
-  background: #fff;
-  color: #333;
-  font-size: 0.88rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.ds-table-footer .ds-pagination {
+  margin-top: 0;
 }
 
-.pg-btn:hover:not(:disabled):not(.pg-dots) {
-  background: #f0f4ff;
-  border-color: #2196F3;
-  color: #2196F3;
-}
 
-.pg-btn.active {
-  background: #1a2238;
-  border-color: #1a2238;
-  color: #fff;
-  cursor: default;
-}
+/* =========================================================
+   12. HISTORY ACTION — THANH TÌM KIẾM VÀ BỘ LỌC
+   ========================================================= */
 
-.pg-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.pg-dots {
-  border: none;
-  background: transparent;
-  cursor: default;
-  letter-spacing: 1px;
-}
-
-/* ── Responsive overrides for DATA SENSOR ──────────────────────────── */
-@media (max-width: 700px) {
-  .ds-toolbar {
-    gap: 10px;
-  }
-  .ds-search-wrap {
-    max-width: 100%;
-    flex: 1 1 100%;
-  }
-  .ds-filter-group {
-    flex: 1 1 auto;
-  }
-  .ds-pagination {
-    justify-content: center;
-  }
-}
-
-/* =================================================================
-   HISTORY ACTION PAGE — additional styles
-   (appended; does not override HOME or DATA SENSOR styles)
-   ================================================================= */
-
-/* ── HA toolbar: search left + 2×2 grid filters right ─────────────── */
 .ha-toolbar {
   display: flex;
   align-items: flex-start;
@@ -595,7 +697,8 @@ body {
   flex-wrap: wrap;
 }
 
-/* Search takes up left side */
+/* Ô tìm kiếm */
+
 .ha-search-wrap {
   flex: 0 1 260px;
   position: relative;
@@ -625,15 +728,21 @@ body {
   background: #fff;
 }
 
-#ha-search::placeholder { color: #aaa; }
-#ha-search:focus         { border-color: #2196F3; }
+#ha-search::placeholder {
+  color: #aaa;
+}
 
-/* Filter block: 2×2 grid on the right */
+#ha-search:focus {
+  border-color: #2196f3;
+}
+
+/* Bộ lọc */
+
 .ha-filters {
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr ;
-  gap: 10px 16px; 
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px 16px;
   max-width: 600px;
 }
 
@@ -667,14 +776,20 @@ body {
   min-width: 90px;
 }
 
-.ha-select:focus { border-color: #2196F3; }
+.ha-select:focus {
+  border-color: #2196f3;
+}
 
-/* ── HA Table (shares ds-table-wrap + ds-table base, adding overrides) ─ */
+
+/* =========================================================
+   13. HISTORY ACTION — BẢNG LỊCH SỬ
+   ========================================================= */
+
 .ha-table-wrap {
   width: 100%;
   overflow-x: auto;
   border-radius: 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.09);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.09);
 }
 
 .ha-table {
@@ -685,9 +800,13 @@ body {
   min-width: 580px;
 }
 
-/* Header */
-.ha-table thead tr  { background: #1a2238; }
-.ha-table thead th  {
+/* Tiêu đề bảng */
+
+.ha-table thead tr {
+  background: #1a2238;
+}
+
+.ha-table thead th {
   color: #fff;
   font-weight: 700;
   font-size: 0.88rem;
@@ -696,48 +815,95 @@ body {
   text-align: left;
   white-space: nowrap;
 }
-.ha-table thead th:first-child { text-align: center; }
+
+.ha-table thead th:first-child,
 .ha-table thead th:nth-child(3),
 .ha-table thead th:nth-child(4),
-.ha-table thead th:nth-child(5) { text-align: center; }
+.ha-table thead th:nth-child(5) {
+  text-align: center;
+}
 
-/* Body rows */
+/* Các hàng dữ liệu */
+
 .ha-table tbody tr {
   border-bottom: 1px solid #e8e8e8;
   transition: background 0.15s;
 }
-.ha-table tbody tr:nth-child(even) { background: #f7f8fa; }
-.ha-table tbody tr:nth-child(odd)  { background: #fff; }
-.ha-table tbody tr:hover           { background: #eef4ff; }
 
-/* Cells */
+.ha-table tbody tr:nth-child(even) {
+  background: #f7f8fa;
+}
+
+.ha-table tbody tr:nth-child(odd) {
+  background: #fff;
+}
+
+.ha-table tbody tr:hover {
+  background: #eef4ff;
+}
+
 .ha-table tbody td {
   padding: 13px 18px;
   color: #333;
 }
 
-.ha-table td.ha-col-id       { text-align: center; font-weight: 700; }
-.ha-table td.ha-col-name     { text-align: left;   font-weight: 700; }
-.ha-table td.ha-col-action   { text-align: center; font-weight: 700; }
-.ha-table td.ha-col-status   { text-align: center; font-weight: 700; }
-.ha-table td.ha-col-time     {
+/* Các cột */
+
+.ha-table td.ha-col-id {
+  text-align: center;
+  font-weight: 700;
+}
+
+.ha-table td.ha-col-name {
+  text-align: left;
+  font-weight: 700;
+}
+
+.ha-table td.ha-col-action,
+.ha-table td.ha-col-status {
+  text-align: center;
+  font-weight: 700;
+}
+
+.ha-table td.ha-col-time {
   text-align: center;
   font-size: 0.87rem;
   color: #555;
-  white-space: nowrap; 
+  white-space: nowrap;
   font-weight: 500;
 }
 
-/* Action colors — specificity ngang với .ha-table td.ha-col-action nên thêm .ha-table để thắng */
-.ha-table td.action-on  { color: #0099FF; font-weight: 700; }
-.ha-table td.action-off { color: #FF0000; font-weight: 700; }
+/* Màu hành động */
 
-/* Status colors */
-.ha-table td.status-success { color: #4CD137; font-weight: 700; }
-.ha-table td.status-failed  { color: #FF0000; font-weight: 700; }
-.ha-table td.status-waiting { color: #FFB800; font-weight: 700; }
+.ha-table td.action-on {
+  color: #0099ff;
+  font-weight: 700;
+}
 
-/* Empty state */
+.ha-table td.action-off {
+  color: #ff0000;
+  font-weight: 700;
+}
+
+/* Màu trạng thái */
+
+.ha-table td.status-success {
+  color: #4cd137;
+  font-weight: 700;
+}
+
+.ha-table td.status-failed {
+  color: #ff0000;
+  font-weight: 700;
+}
+
+.ha-table td.status-waiting {
+  color: #ffb800;
+  font-weight: 700;
+}
+
+/* Bảng không có dữ liệu */
+
 .ha-table .ha-empty td {
   text-align: center;
   color: #999;
@@ -746,7 +912,25 @@ body {
   font-weight: 400;
 }
 
-/* ── HA Pagination (reuses .pg-btn; only needs container override) ─── */
+
+/* =========================================================
+   14. HISTORY ACTION — FOOTER VÀ PHÂN TRANG
+   ========================================================= */
+
+.ha-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.ha-summary {
+  font-size: 14px;
+  color: #666;
+}
+
 .ha-pagination {
   display: flex;
   justify-content: flex-end;
@@ -756,21 +940,155 @@ body {
   flex-wrap: wrap;
 }
 
-/* ── Responsive ────────────────────────────────────────────────────── */
+.ha-table-footer .ha-pagination {
+  margin-top: 0;
+}
+
+.ha-pagination .pg-btn.active:disabled {
+  background: #1a2238;
+  border-color: #1a2238;
+  color: #fff;
+  opacity: 1;
+  cursor: default;
+}
+
+
+/* =========================================================
+   15. RESPONSIVE — NAVBAR
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .nav-list {
+    gap: 20px;
+  }
+
+  .nav-list a {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .nav-list {
+    gap: 12px;
+    flex-wrap: wrap;
+    height: auto;
+    padding: 8px 0;
+  }
+}
+
+
+/* =========================================================
+   16. RESPONSIVE — HOME
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .dashboard {
+    flex-direction: column;
+    padding: 14px 12px;
+  }
+
+  .charts-section,
+  .devices-section {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .devices-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .devices-header {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .sensor-info {
+    min-width: 88px;
+    max-width: 95px;
+    padding: 12px 8px;
+  }
+
+  .sensor-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .sensor-value {
+    font-size: 1.3rem;
+  }
+
+  .device-card {
+    padding: 12px 14px;
+  }
+
+  .devices-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================================
+   17. RESPONSIVE — DATA SENSOR
+   ========================================================= */
+
+@media (max-width: 700px) {
+  .ds-toolbar {
+    gap: 10px;
+  }
+
+  .ds-search-wrap {
+    max-width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .ds-filter-group {
+    flex: 1 1 auto;
+  }
+
+  .ds-pagination {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .ds-table-footer {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+
+/* =========================================================
+   18. RESPONSIVE — HISTORY ACTION
+   ========================================================= */
+
 @media (max-width: 800px) {
   .ha-toolbar {
     flex-direction: column;
     gap: 14px;
   }
+
   .ha-search-wrap {
     flex: 1 1 100%;
     max-width: 100%;
   }
+
   .ha-filters {
     width: 100%;
   }
+
   .ha-pagination {
     justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .ha-table-footer {
+    flex-direction: column;
+    gap: 12px;
   }
 }
 
@@ -778,88 +1096,8 @@ body {
   .ha-filters {
     grid-template-columns: 1fr;
   }
+
   .ha-filter-group label {
     min-width: 54px;
-  }
-}
- 
-.device-card {
-  position: relative;
-}
-
-.device-card.loading {
-  pointer-events: none;
-  cursor: wait;
-}
-
-/* Làm mờ icon và nút, giữ thông báo rõ */
-.device-card.loading > :not(.loading-text) {
-  opacity: 0.3;
-}
-
-.device-card .loading-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: max-content;
-  max-width: calc(100% - 24px);
-  margin: 0;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: #fff;
-  color: #333;
-  font-size: 14px;
-  font-weight: 600;
-  text-align: center;
-  z-index: 10;
-}
-
-.device-card .loading-text:empty {
-  display: none;
-}
-
-/* ── Reset button (DATA SENSOR toolbar) ────────────────────────────── */
-.ds-reset-btn {
-  padding: 8px 16px;
-  border: 1.5px solid #ccc;
-  border-radius: 6px;
-  background: #fff;
-  color: #333;
-  font-size: 0.88rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-  align-self: center;
-}
-
-.ds-reset-btn:hover {
-  background: #f0f4ff;
-  border-color: #2196F3;
-  color: #2196F3;
-} 
-.ds-table-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: 18px;
-  flex-wrap: wrap;
-}
-
-.ds-summary {
-  font-size: 14px;
-  color: #666;
-}
-
-.ds-table-footer .ds-pagination {
-  margin-top: 0;
-}
-
-@media (max-width: 600px) {
-  .ds-table-footer {
-    flex-direction: column;
-    gap: 12px;
   }
 }

@@ -2,14 +2,16 @@ require("dotenv").config();
 const sequelize = require("./config/database");
 const webRoutes = require("./routes/web.route");
 require("dotenv").config();
-
+const { createServer } = require("http");
 const mqttClient = require("./config/mqtt");
 const express = require("express");
 const path = require("path");
+const { initSocket } = require("./config/socket");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+const server = createServer(app);
+initSocket(server);
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -32,7 +34,7 @@ async function startServer() {
 
     console.log("MySQL connected successfully!");
 
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Server running: http://localhost:${PORT}`);
     });
 

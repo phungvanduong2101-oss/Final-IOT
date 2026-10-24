@@ -2,6 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const message = document.getElementById("dashboard-message");
+  const socket = io({ autoConnect: false });
 
   // =========================
   // BIỂU ĐỒ
@@ -85,60 +86,104 @@ document.addEventListener("DOMContentLoaded", () => {
     0, 1000, 100, "LX"
   );
 
-  async function loadSensors() {
-    try {
-      const response = await fetch("/api/sensors-data/chart", {
-        signal: AbortSignal.timeout(2000),
-      });
+  function setChartData(chart, records) {
+    // API trả mới nhất trước, đảo lại để vẽ cũ đến mới.
+    const rows = [...records].reverse();
 
-      if (!response.ok) {
-        throw new Error("Không tải được cảm biến.");
+    chart.data.labels = rows.map(row =>
+      new Date(row.created_at).toLocaleTimeString("vi-VN")
+    );
+
+    chart.data.datasets[0].data = rows.map(row => row.value);
+    chart.update("none");
+  }
+
+  async function loadSensors() {
+    const response = await fetch("/api/sensors-data/chart", {
+      signal: AbortSignal.timeout(10000),
+    });
+
+    if (!response.ok) {
+      throw new Error("Không tải được dữ liệu cảm biến.");
+    }
+
+    const result = await response.json();
+
+    if (result.code !== "success") {
+      throw new Error(result.message || "Không tải được dữ liệu cảm biến.");
+    }
+
+    setChartData(tempChart, result.Temperature);
+    setChartData(humidChart, result.Humidity);
+    setChartData(lightChart, result.Light);
+
+    document.getElementById("temp-value").textContent =
+      `${result.Temperature[0]?.value ?? "--"}°C`;
+
+    document.getElementById("humid-value").textContent =
+      `${result.Humidity[0]?.value ?? "--"}%`;
+
+    document.getElementById("light-value").textContent =
+      `${result.Light[0]?.value ?? "--"} LX`;
+  }
+
+  function addPoint(chart, row) {
+    chart.data.labels.push(
+      new Date(row.created_at).toLocaleTimeString("vi-VN")
+    );
+
+    chart.data.datasets[0].data.push(row.value);
+
+    // Chỉ giữ tối đa 10 điểm.
+    while (chart.data.labels.length > 10) {
+      chart.data.labels.shift();
+      chart.data.datasets[0].data.shift();
+    }
+
+    chart.update("none");
+  }
+
+  // =========================
+  // SOCKET CẢM BIẾN
+  // =========================
+  socket.on("sensors:update", records => {
+    for (const row of records) {
+      if (row.measurement_type === "Temperature") {
+        addPoint(tempChart, row);
+
+        document.getElementById("temp-value").textContent =
+          `${row.value}°C`;
       }
 
-      const result = await response.json();
+      if (row.measurement_type === "Humidity") {
+        addPoint(humidChart, row);
 
-      // API trả mới nhất trước, đảo lại để vẽ cũ đến mới.
-      const temperatures = [...result.Temperature].reverse();
-      const humidities = [...result.Humidity].reverse();
-      const lights = [...result.Light].reverse();
+        document.getElementById("humid-value").textContent =
+          `${row.value}%`;
+      }
 
-      tempChart.data.labels = temperatures.map(row =>
-        new Date(row.created_at).toLocaleTimeString("vi-VN")
-      );
-      tempChart.data.datasets[0].data =
-        temperatures.map(row => row.value);
-      tempChart.update("none");
+      if (row.measurement_type === "Light") {
+        addPoint(lightChart, row);
 
-      humidChart.data.labels = humidities.map(row =>
-        new Date(row.created_at).toLocaleTimeString("vi-VN")
-      );
-      humidChart.data.datasets[0].data =
-        humidities.map(row => row.value);
-      humidChart.update("none");
-
-      lightChart.data.labels = lights.map(row =>
-        new Date(row.created_at).toLocaleTimeString("vi-VN")
-      );
-      lightChart.data.datasets[0].data =
-        lights.map(row => row.value);
-      lightChart.update("none");
-
-      document.getElementById("temp-value").textContent =
-        `${result.Temperature[0]?.value ?? "--"}°C`;
-
-      document.getElementById("humid-value").textContent =
-        `${result.Humidity[0]?.value ?? "--"}%`;
-
-      document.getElementById("light-value").textContent =
-        `${result.Light[0]?.value ?? "--"} LX`;
-
-      message.textContent = "";
-    } catch (error) {
-      message.textContent = error.message;
-    } finally {
-      setTimeout(loadSensors, 2000);
+        document.getElementById("light-value").textContent =
+          `${row.value} LX`;
+      }
     }
-  }
+
+    message.textContent = "";
+  });
+
+  socket.on("connect", () => {
+    message.textContent = "";
+  });
+
+  socket.on("connect_error", () => {
+    message.textContent = "Không kết nối được cập nhật trực tiếp.";
+  });
+
+  socket.on("disconnect", () => {
+    message.textContent = "Mất kết nối cập nhật trực tiếp.";
+  });
 
   // =========================
   // THIẾT BỊ
@@ -149,67 +194,71 @@ document.addEventListener("DOMContentLoaded", () => {
     { key: "light", name: "Đèn" },
   ];
 
-async function sendCommand(device) {
-  const action = device.toggle.checked ? "ON" : "OFF";
+  async function sendCommand(device) {
+    const action = device.toggle.checked ? "ON" : "OFF";
 
-  // Giữ nút ở trạng thái cũ trong khi chờ
-  device.toggle.checked = device.status === "ON";
-  device.toggle.disabled = true;
-  device.card.classList.add("loading");
-  device.note.textContent = "Đang gửi lệnh...";
+    device.toggle.checked = device.status === "ON";
+    device.toggle.disabled = true;
+    device.card.classList.add("loading");
+    device.note.textContent = "Đang gửi lệnh...";
 
-  try {
-    // 1. Gửi lệnh
-    const response = await fetch(`/api/devices/${device.id}/control`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ action }),
-      signal: AbortSignal.timeout(10000),
-    });
-
-    const result = await response.json();
-
-    if (result.code !== "success") {
-      throw new Error(result.message || "Gửi lệnh thất bại.");
-    }
-
-    device.note.textContent = "Đang chờ thiết bị...";
-
-    // 2. Kiểm tra trạng thái tối đa 10 lần
-    for (let i = 0; i < 10; i++) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      const response = await fetch(`/api/devices/${device.id}`, {
-        signal: AbortSignal.timeout(3000),
+    try {
+      const response = await fetch(`/api/devices/${device.id}/control`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ action }),
+        signal: AbortSignal.timeout(10000),
       });
 
-      const data = await response.json();
+      const result = await response.json();
 
-      if (data.code !== "success") {
-        throw new Error(data.message || "Không đọc được trạng thái.");
+      if (!response.ok || result.code !== "success") {
+        throw new Error(result.message || "Gửi lệnh thất bại.");
       }
 
-      const status = data.device.current_status;
-      device.status = status;
-      device.toggle.checked = status === "ON";
-      device.card.classList.toggle("off", status !== "ON");
+      device.note.textContent = "Đang chờ thiết bị...";
 
-      if (status === action) {
-        device.note.textContent = "";
-        return;
+      // Phần thiết bị vẫn kiểm tra trạng thái qua API.
+      for (let i = 0; i < 10; i++) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        const statusResponse = await fetch(`/api/devices/${device.id}`, {
+          signal: AbortSignal.timeout(3000),
+        });
+
+        const data = await statusResponse.json();
+
+        if (!statusResponse.ok || data.code !== "success") {
+          throw new Error(data.message || "Không đọc được trạng thái.");
+        }
+
+        const status = data.device?.current_status;
+
+        if (!["ON", "OFF"].includes(status)) {
+          throw new Error("Trạng thái thiết bị không hợp lệ.");
+        }
+
+        device.status = status;
+        device.toggle.checked = status === "ON";
+        device.card.classList.toggle("off", status !== "ON");
+
+        if (status === action) {
+          device.note.textContent = "";
+          return;
+        }
       }
+
+      device.note.textContent =
+        "Chưa xác nhận được trạng thái thiết bị. Vui lòng thử lại.";
+    } catch (error) {
+      device.note.textContent = error.message;
+    } finally {
+      device.card.classList.remove("loading");
+      device.toggle.disabled = false;
     }
-
-    device.note.textContent = "Bật/Tắt thất bại!Vui lòng thử lại!.";
-  } catch (error) {
-    device.note.textContent = error.message;
-  } finally {
-    device.card.classList.remove("loading");
-    device.toggle.disabled = false;
   }
-}
 
   async function loadDevices() {
     for (const device of devices) {
@@ -218,8 +267,8 @@ async function sendCommand(device) {
 
       device.toggle.disabled = true;
 
-      device.note = document.createElement("p"); 
-      device.note.classList.add("loading-text"); // Thêm ở đây
+      device.note = document.createElement("p");
+      device.note.classList.add("loading-text");
       device.note.setAttribute("role", "status");
       device.note.textContent = "Đang tải trạng thái...";
       device.card.append(device.note);
@@ -234,11 +283,11 @@ async function sendCommand(device) {
         signal: AbortSignal.timeout(10000),
       });
 
-      if (!response.ok) {
-        throw new Error("Không tải được danh sách thiết bị.");
-      }
-
       const result = await response.json();
+
+      if (!response.ok || result.code !== "success") {
+        throw new Error(result.message || "Không tải được danh sách thiết bị.");
+      }
 
       for (const device of devices) {
         const record = result.data.find(row => row.name === device.name);
@@ -248,9 +297,15 @@ async function sendCommand(device) {
           continue;
         }
 
+        if (!["ON", "OFF"].includes(record.current_status)) {
+          device.note.textContent = "Trạng thái thiết bị không hợp lệ.";
+          continue;
+        }
+
         device.id = record.id;
         device.status = record.current_status;
         device.toggle.checked = record.current_status === "ON";
+
         device.card.classList.toggle(
           "off",
           record.current_status !== "ON"
@@ -266,6 +321,22 @@ async function sendCommand(device) {
     }
   }
 
-  loadSensors();
+  // =========================
+  // KHỞI ĐỘNG
+  // =========================
+  async function initSensors() {
+    try {
+      // Tải và vẽ 10 điểm trước.
+      await loadSensors();
+    } catch (error) {
+      message.textContent = error.message;
+    } finally {
+      // Sau khi API kết thúc mới kết nối socket.
+      // Nếu API lỗi, vẫn nhận được các lần đo mới.
+      socket.connect();
+    }
+  }
+
+  initSensors();
   loadDevices();
 });
