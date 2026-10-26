@@ -2,46 +2,49 @@ extends layouts/default.pug
 
 include partials/icons.pug
 
+block styles
+  link(rel="stylesheet" href="/css/data-sensor.css")
+
 block content
-  .ds-page
-    .ds-toolbar
-      .ds-search-wrap(style="max-width:360px;")
+  .sensor-data-page
+    .sensor-data-toolbar
+      .sensor-data-search-wrap(style="max-width:360px;")
         input#ds-search(
           type="text"
           placeholder="Search..."
           autocomplete="off"
         )
-        +searchIcon()
+        +searchIcon("sensor-data-search-icon")
 
-      .ds-filter-group
+      .sensor-data-filter-group
         label(for="ds-search-by") Search by
 
-        select#ds-search-by.ds-select
+        select#ds-search-by.sensor-data-select
           option(value="ALL") ALL
           option(value="Temperature") Temperature
           option(value="Humidity") Humidity
           option(value="Light") Light
-          option(value="Time") Time
+          //option(value="Time") Time
 
-      .ds-filter-group
+      .sensor-data-filter-group
         label(for="ds-sort") Sort
 
-        select#ds-sort.ds-select
+        select#ds-sort.sensor-data-select
           option(value="DESC") Newest
           option(value="ASC") Oldest  
 
-      .ds-filter-group
+      .sensor-data-filter-group
         label(for="ds-limit") Items
-        select#ds-items.ds-select
+        select#ds-items.sensor-data-select
           option(value="10") 10
           option(value="20") 20 
           option(value="50") 50
 
 
-      button#ds-reset.ds-reset-btn(type="button") Đặt lại
+      button#ds-reset.sensor-data-reset-btn(type="button") Đặt lại
 
-    .ds-table-wrap
-      table.ds-table
+    .sensor-data-table-wrap
+      table.sensor-data-table
         thead
           tr
             th SENSOR ID
@@ -54,11 +57,9 @@ block content
           tr
             td(colspan="5") Đang tải dữ liệu...
 
-    .ds-table-footer
-      #ds-summary.ds-summary Hiển thị 0–0 trên tổng 0 bản ghi
-      #ds-pagination.ds-pagination
+    .sensor-data-table-footer
+      #ds-summary.sensor-data-summary Hiển thị 0–0 trên tổng 0 bản ghi
+      #ds-pagination.sensor-data-pagination
 
 block scripts
-  script(src="/js/api.js")
-  script(src="/js/table.js")
   script(src="/js/data-sensor.js")

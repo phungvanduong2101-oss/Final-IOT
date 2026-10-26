@@ -28,21 +28,21 @@
         throw new Error(result.message || "Không tải được dữ liệu.");
       }
 
-      tbody.replaceChildren();
+      tbody.replaceChildren(); // Clear table
 
       for (const row of result.data) {
         const type = row.measurement_type;
 
         const suffix = {
-          Temp: "°C",
-          Hum: "%",
-          Lux: " LX",
+          Temperature: " °C",
+          Humidity: " %",
+          Light: " Lux",
         }[type] || "";
 
         const color = {
-          Temp: "temp",
-          Hum: "hum",
-          Lux: "lux",
+          Temperature: "temp",
+          Humidity: "hum",
+          Light: "lux",
         }[type] || "";
 
         const tr = document.createElement("tr");
@@ -50,14 +50,14 @@
         const cells = [
           { text: row.sensor_id },
           { text: row.sensor?.type ?? "" },
-          { text: type, className: `type-${color}` },
+          { text: type, className: `sensor-data-type-${color}` },
           {
             text: `${row.value}${suffix}`,
-            className: `val-${color}`,
+            className: `sensor-data-val-${color}`,
           },
           {
             text: new Date(row.created_at).toLocaleString("vi-VN"),
-            className: "col-time",
+            className: "sensor-data-col-time",
           },
         ];
 
@@ -85,7 +85,7 @@
 
   function showMessage(message) {
     const tr = document.createElement("tr");
-    tr.className = "empty-row";
+    tr.className = "sensor-data-empty-row";
 
     const td = document.createElement("td");
     td.colSpan = 5;
@@ -105,11 +105,11 @@
 
       button.type = "button";
       button.textContent = text;
-      button.className = "pg-btn";
+      button.className = "sensor-data-pg-btn";
       button.disabled = disabled;
 
       if (page === currentPage && text === String(page)) {
-        button.classList.add("active");
+        button.classList.add("sensor-data-active");
       }
 
       button.addEventListener("click", () => {
@@ -150,10 +150,8 @@
     currentPage = page;
     loadSensors();
   }
-  search.addEventListener("keydown", event => {
-    if (event.key !== "Enter") return;
-
-    event.preventDefault();
+  search.addEventListener("input", () => {
+    
     keyword = search.value.trim(); 
     currentPage = 1;
     loadSensors();

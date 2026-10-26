@@ -1,10 +1,10 @@
-mixin pagination(className)
+mixin pagination(className, pagePrefix)
   div(class=className)
-    button.pg-btn(type="button" disabled) <
-    button.pg-btn.active(type="button") 1
-    button.pg-btn(type="button") 2
-    button.pg-btn(type="button") 3
-    button.pg-btn.pg-dots(type="button" disabled) ...
-    button.pg-btn(type="button") 36
-    button.pg-btn(type="button") 37
-    button.pg-btn(type="button") >
+    button(class=pagePrefix + "-pg-btn" type="button" disabled) <
+    button(class=[pagePrefix + "-pg-btn", pagePrefix + "-active"] type="button") 1
+    button(class=pagePrefix + "-pg-btn" type="button") 2
+    button(class=pagePrefix + "-pg-btn" type="button") 3
+    button(class=[pagePrefix + "-pg-btn", pagePrefix + "-pg-dots"] type="button" disabled) ...
+    button(class=pagePrefix + "-pg-btn" type="button") 36
+    button(class=pagePrefix + "-pg-btn" type="button") 37
+    button(class=pagePrefix + "-pg-btn" type="button") >

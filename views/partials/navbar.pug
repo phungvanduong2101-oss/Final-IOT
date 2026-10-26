@@ -1,13 +1,14 @@
-nav.navbar
-  ul.nav-list
-    li.nav-item(class=activePage === "home" ? "active" : "")
+- const pageClassPrefix = activePage === "data-sensor" ? "sensor-data" : activePage;
+nav(class=pageClassPrefix + "-navbar")
+  ul(class=pageClassPrefix + "-nav-list")
+    li(class=[pageClassPrefix + "-nav-item", activePage === "home" ? pageClassPrefix + "-active" : ""])
       a(href="/") HOME
 
-    li.nav-item(class=activePage === "data-sensor" ? "active" : "")
+    li(class=[pageClassPrefix + "-nav-item", activePage === "data-sensor" ? pageClassPrefix + "-active" : ""])
       a(href="/data-sensor") DATA SENSOR
 
-    li.nav-item(class=activePage === "history-action" ? "active" : "")
+    li(class=[pageClassPrefix + "-nav-item", activePage === "history-action" ? pageClassPrefix + "-active" : ""])
       a(href="/history-action") HISTORY ACTION
 
-    li.nav-item(class=activePage === "profile" ? "active" : "")
+    li(class=[pageClassPrefix + "-nav-item", activePage === "profile" ? pageClassPrefix + "-active" : ""])
       a(href="/profile") PROFILE

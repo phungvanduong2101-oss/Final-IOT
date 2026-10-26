@@ -7,7 +7,8 @@ const mqttClient = require("./config/mqtt");
 const express = require("express");
 const path = require("path");
 const { initSocket } = require("./config/socket");
-
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const server = createServer(app);
@@ -26,6 +27,15 @@ app.set("views", path.join(__dirname, "views"));
 // Routes
 app.use("/", webRoutes);  
 app.use("/api", require("./routes/api.route"));
+ 
+
+
+// Sau khi đã khởi tạo app = express().
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec)
+); 
 
 // Kết nối Database và khởi động Server
 async function startServer() {

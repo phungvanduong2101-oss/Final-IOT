@@ -1,217 +1,221 @@
-'use strict';
+"use strict";
 
-const searchInput = document.getElementById('ha-search');
-const deviceSelect = document.getElementById('ha-device');
-const statusSelect = document.getElementById('ha-status');
-const sortSelect = document.getElementById('ha-sort');
-const itemsSelect = document.getElementById('ha-items');
-const resetButton = document.getElementById('ha-reset');
+(() => {
+  const search = document.getElementById("ha-search");
+  const device = document.getElementById("ha-device");
+  const status = document.getElementById("ha-status");
+  const sort = document.getElementById("ha-sort");
+  const items = document.getElementById("ha-items");
+  const reset = document.getElementById("ha-reset");
+  const tbody = document.getElementById("ha-table-body");
+  const summary = document.getElementById("ha-summary");
+  const pagination = document.getElementById("ha-pagination");
 
-const tableBody = document.getElementById('ha-table-body');
-const pagination = document.getElementById('ha-pagination');
+  let keyword = "";
+  let currentPage = 1;
+  let requestController;
 
-let currentPage = 1;
-let keyword = '';
-let loading = false;
+  async function loadActions() {
+    // Hủy request cũ để kết quả tìm kiếm cũ không ghi đè kết quả mới.
+    requestController?.abort();
+    const controller = new AbortController();
+    requestController = controller;
 
-// Lấy dữ liệu từ server.
-async function loadActions() {
-  if (loading) return;
-  loading = true;
-
-  tableBody.innerHTML = `
-    <tr>
-      <td colspan="5">Đang tải dữ liệu...</td>
-    </tr>
-  `;
-  pagination.replaceChildren();
-
-  try {
     const params = new URLSearchParams({
       search: keyword,
-      device: deviceSelect.value,
-      status: statusSelect.value,
-      sort: sortSelect.value,
-      limit: itemsSelect.value,
+      device: device.value,
+      status: status.value,
+      items: items.value,
+      sort: sort.value,
       page: currentPage,
     });
 
-    const response = await fetch(`/api/actions?${params}`);
+    try {
+      const response = await fetch(`/api/actions?${params}`, {
+        signal: controller.signal,
+      });
 
-    if (!response.ok) {
-      throw new Error('Không tải được lịch sử thao tác.');
+      const result = await response.json();
+
+      if (!response.ok || result.code !== "success") {
+        throw new Error(result.message || "Không tải được lịch sử thao tác.");
+      }
+
+      if (controller.signal.aborted) return;
+
+      tbody.replaceChildren();
+
+      for (const row of result.data) {
+        const actionClass = row.action === "ON"
+          ? "history-action-action-on"
+          : "history-action-action-off";
+
+        const statusClass = {
+          SUCCESS: "history-action-status-success",
+          FAILED: "history-action-status-failed",
+          WAITING: "history-action-status-waiting",
+        }[row.status] || "";
+
+        const tr = document.createElement("tr");
+
+        const cells = [
+          {
+            text: row.device_id,
+            className: "history-action-col-id",
+          },
+          {
+            text: row.device?.name ?? "—",
+            className: "history-action-col-name",
+          },
+          {
+            text: row.action,
+            className: `history-action-col-action ${actionClass}`,
+          },
+          {
+            text: row.status === "WAITING" ? "WAITING..." : row.status,
+            className: `history-action-col-status ${statusClass}`,
+          },
+          {
+            text: new Date(row.created_at).toLocaleString("vi-VN"),
+            className: "history-action-col-time",
+          },
+        ];
+
+        for (const cell of cells) {
+          const td = document.createElement("td");
+
+          td.textContent = cell.text;
+          if (cell.className) td.className = cell.className;
+
+          tr.append(td);
+        }
+
+        tbody.append(tr);
+      }
+
+      const start = result.data.length ? Number(result.skip) + 1 : 0;
+      const end = Number(result.skip) + result.data.length;
+
+      summary.textContent =
+        `Hiển thị ${start} - ${end} trên tổng số ${result.total} bản ghi.`;
+
+      currentPage = Number(result.currentPage);
+      renderPagination(currentPage, Number(result.totalPages));
+
+      if (result.data.length === 0) {
+        showMessage("Không có dữ liệu.");
+      }
+    } catch (error) {
+      if (error.name === "AbortError") return;
+
+      showMessage(error.message);
+      pagination.replaceChildren();
+      summary.textContent = "";
+    }
+  }
+
+  function showMessage(message) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+
+    td.colSpan = 5;
+    td.textContent = message;
+
+    tr.append(td);
+    tbody.replaceChildren(tr);
+  }
+
+  function renderPagination(currentPage, totalPages) {
+    pagination.replaceChildren();
+
+    if (totalPages <= 1) return;
+
+    function addButton(text, page, disabled = false) {
+      const button = document.createElement("button");
+
+      button.type = "button";
+      button.textContent = text;
+      button.className = "history-action-pg-btn";
+      button.disabled = disabled;
+
+      if (page === currentPage && text === String(page)) {
+        button.classList.add("history-action-active");
+      }
+
+      button.addEventListener("click", () => {
+        loadPage(page);
+      });
+
+      pagination.append(button);
     }
 
-    const result = await response.json();
+    addButton("<", currentPage - 1, currentPage <= 1);
 
-    // Đổi tên trường tại đây nếu API trả về tên khác.
-    const actions = result.data;
-    const totalPages = Number(result.totalPages);
+    const pages = [...new Set([
+      1,
+      currentPage - 1,
+      currentPage,
+      currentPage + 1,
+      totalPages,
+    ])]
+      .filter(page => page >= 1 && page <= totalPages)
+      .sort((a, b) => a - b);
 
-    currentPage = Number(result.currentPage);
+    let previousPage = 0;
 
-    renderTable(actions);
-    renderPagination(totalPages); 
-     
-    const displayCount = document.getElementById('ha-summary');
-    displayCount.textContent = `Hiển thị ${result.skip + 1} - ${result.skip + actions.length} trong tổng số ${result.total} bản ghi.`;
-  } catch (error) {
-    showMessage(error.message);
-  } finally {
-    loading = false;
-  }
-}
+    for (const page of pages) {
+      if (previousPage && page - previousPage > 1) {
+        addButton("...", 0, true);
+      }
 
-// Hiển thị thông báo trong bảng.
-function showMessage(message) {
-  tableBody.replaceChildren();
-
-  const row = document.createElement('tr');
-  const cell = document.createElement('td');
-
-  cell.colSpan = 5;
-  cell.textContent = message;
-
-  row.appendChild(cell);
-  tableBody.appendChild(row);
-}
-
-// Tạo một ô dữ liệu.
-function createCell(value, className) {
-  const cell = document.createElement('td');
-
-  cell.textContent = value ?? '—';
-  cell.className = className;
-
-  return cell;
-}
-
-// Hiển thị danh sách thao tác.
-function renderTable(actions) {
-  tableBody.replaceChildren();
-
-  if (actions.length === 0) {
-    showMessage('Không có dữ liệu.');
-    return;
-  }
-
-  for (const action of actions) {
-    const row = document.createElement('tr');
-
-    let actionClass = 'action-off';
-
-    if (action.action === 'ON') {
-      actionClass = 'action-on';
+      addButton(String(page), page);
+      previousPage = page;
     }
 
-    let statusClass = 'status-waiting';
-
-    if (action.status === 'SUCCESS') {
-      statusClass = 'status-success';
-    } else if (action.status === 'FAILED') {
-      statusClass = 'status-failed';
-    }
-
-    let statusText = action.status;
-
-    if (action.status === 'WAITING') {
-      statusText = 'WAITING...';
-    }
-
-    row.append(
-      createCell(action.device_id, 'ha-col-id'),
-      createCell(action.device?.name, 'ha-col-name'),
-      createCell(action.action, `ha-col-action ${actionClass}`),
-      createCell(statusText, `ha-col-status ${statusClass}`),
-      createCell(Api.time(action.created_at), 'ha-col-time'),
-    );
-
-    tableBody.appendChild(row);
-  }
-}
-
-// Hiển thị các nút phân trang.
-function renderPagination(totalPages) {
-  pagination.replaceChildren();
-
-  if (totalPages <= 1) return;
-       
-  if(currentPage!=1) 
-  addPageButton('<', currentPage - 1, currentPage === 1);
-
-  // Hiển thị tối đa 5 nút số trang.
-  const start = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
-  const end = Math.min(totalPages, start + 4);
-
-  for (let page = start; page <= end; page++) {
-    addPageButton(String(page), page, page === currentPage);
+    addButton(">", currentPage + 1, currentPage >= totalPages);
   }
 
-  addPageButton('>', currentPage + 1, currentPage === totalPages); 
-
-}
-
-// Tạo một nút chuyển trang.
-function addPageButton(text, page, disabled) {
-  const button = document.createElement('button');
-
-  button.type = 'button'; 
-  button.classList.add('pg-btn');
-  button.textContent = text;
-  button.disabled = disabled;
-
-  if (page === currentPage && text === String(page)) {
-    button.classList.add('active');
-  }
-
-  button.addEventListener('click', () => {
-    if (loading) return;
-
+  function loadPage(page) {
     currentPage = page;
+    loadActions();
+  }
+
+  search.addEventListener("input", () => {
+    keyword = search.value.trim();
+    currentPage = 1;
     loadActions();
   });
 
-  pagination.appendChild(button);
-}
+  device.addEventListener("change", () => {
+    currentPage = 1;
+    loadActions();
+  });
 
-// Khi tìm kiếm hoặc đổi bộ lọc, quay về trang 1.
-function reloadFromFirstPage() {
-  if (loading) return;
+  status.addEventListener("change", () => {
+    currentPage = 1;
+    loadActions();
+  });
 
-  currentPage = 1;
+  sort.addEventListener("change", () => {
+    currentPage = 1;
+    loadActions();
+  });
+
+  items.addEventListener("change", () => {
+    currentPage = 1;
+    loadActions();
+  });
+
+  reset.addEventListener("click", () => {
+    search.value = "";
+    keyword = "";
+    device.value = "ALL";
+    status.value = "ALL";
+    sort.value = "DESC";
+    items.value = "10";
+    currentPage = 1;
+    loadActions();
+  });
+
   loadActions();
-}
-
-// Nhấn Enter để tìm kiếm.
-searchInput.addEventListener('keydown', event => {
-  if (event.key !== 'Enter' || loading) return;
-
-  event.preventDefault();
-  keyword = searchInput.value.trim();
-
-  reloadFromFirstPage();
-});
-
-// Đổi bộ lọc hoặc số dòng mỗi trang.
-deviceSelect.addEventListener('change', reloadFromFirstPage);
-statusSelect.addEventListener('change', reloadFromFirstPage);
-sortSelect.addEventListener('change', reloadFromFirstPage);
-itemsSelect.addEventListener('change', reloadFromFirstPage);
-
-// Đặt lại bộ lọc.
-resetButton.addEventListener('click', () => {
-  if (loading) return;
-
-  searchInput.value = '';
-  keyword = '';
-
-  deviceSelect.value = 'ALL';
-  statusSelect.value = 'ALL';
-  sortSelect.value = 'DESC';
-  itemsSelect.value = '10';
-
-  reloadFromFirstPage();
-});
-
-// Tải dữ liệu khi mở trang.
-loadActions();
+})();

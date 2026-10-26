@@ -100,7 +100,11 @@ client.on("message", async (topic, message) => {
                         { where: { device_id: device.device_id, id: data.action_id } }
                     )
                 }
-            }
+            } 
+            getIO().emit(
+                "devices:update",
+                data.devicesState
+            );
         }
     } catch (error) {
         console.error("MQTT message error:", error.message);
@@ -108,11 +112,11 @@ client.on("message", async (topic, message) => {
 });
 
 client.on("reconnect", () => {
-    console.log("MQTT reconnecting...");
+    //console.log("MQTT reconnecting...");
 });
 
 client.on("error", (error) => {
-    console.error("MQTT error:", error.message);
+    //console.error("MQTT error:", error.message);
 });
 
 module.exports = client;

@@ -1,3 +1,84 @@
+/* PROFILE — RESET & BASE */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  min-height: 100vh;
+}
+
+
+/* PROFILE — NAVBAR */
+
+.profile-navbar {
+  background: #fff;
+  border-bottom: 2px solid #e0e0e0;
+  padding: 0 40px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.profile-nav-list {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  gap: 48px;
+}
+
+.profile-nav-item a {
+  text-decoration: none;
+  color: #555;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding-bottom: 4px;
+  transition: color 0.2s;
+}
+
+.profile-nav-item a:hover {
+  color: #333;
+}
+
+.profile-nav-item.profile-active a {
+  color: #111;
+  border-bottom: 2.5px solid #111;
+  font-weight: 700;
+}
+
+
+/* PROFILE — RESPONSIVE — NAVBAR */
+
+@media (max-width: 900px) {
+  .profile-nav-list {
+    gap: 20px;
+  }
+
+  .profile-nav-list a {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .profile-nav-list {
+    gap: 12px;
+    flex-wrap: wrap;
+    height: auto;
+    padding: 8px 0;
+  }
+}
+
 /* =============================================
    profile.css — PROFILE page only
    Does NOT override any shared styles.

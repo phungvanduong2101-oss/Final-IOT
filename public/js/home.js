@@ -172,7 +172,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     message.textContent = "";
   });
+  socket.on("devices:update", (devicesState) => {
+    for (const data of devicesState) {
+      const device = devices.find(
+        d => String(d.id) === String(data.device_id)
+      );
 
+      if (!device) continue;
+
+      if (data.status === "SUCCESS") { 
+        device.toggle.checked = data.state === "ON";
+        device.card.classList.toggle("home-off", data.state !== "ON");
+        device.note.textContent = "Điều khiển thành công!";
+      } else if (data.status === "FAILED") {
+        device.note.textContent = "Điều khiển thất bại!";
+      } else {
+        continue;
+      }
+
+      clearTimeout(device.timer);
+      device.timer = null;
+
+      device.toggle.disabled = false;
+      device.card.classList.remove("home-loading"); 
+      if(data.status === "SUCCESS") {
+        device.timer = setTimeout(() => {
+          device.note.textContent = "";
+        }, 3000);
+      }
+    }
+  });
   socket.on("connect", () => {
     message.textContent = "";
   });
@@ -199,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     device.toggle.checked = device.status === "ON";
     device.toggle.disabled = true;
-    device.card.classList.add("loading");
+    device.card.classList.add("home-loading");
     device.note.textContent = "Đang gửi lệnh...";
 
     try {
@@ -220,43 +249,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
       device.note.textContent = "Đang chờ thiết bị...";
 
-      // Phần thiết bị vẫn kiểm tra trạng thái qua API.
-      for (let i = 0; i < 10; i++) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+      // Chờ Socket phản hồi tối đa 5 giây
+      device.timer = setTimeout(() => {
+        device.toggle.disabled = false;
+        device.card.classList.remove("home-loading");
+        device.note.textContent = "Thiết bị không phản hồi!";
+        device.timer = null;
+      }, 5000);
 
-        const statusResponse = await fetch(`/api/devices/${device.id}`, {
-          signal: AbortSignal.timeout(3000),
-        });
-
-        const data = await statusResponse.json();
-
-        if (!statusResponse.ok || data.code !== "success") {
-          throw new Error(data.message || "Không đọc được trạng thái.");
-        }
-
-        const status = data.device?.current_status;
-
-        if (!["ON", "OFF"].includes(status)) {
-          throw new Error("Trạng thái thiết bị không hợp lệ.");
-        }
-
-        device.status = status;
-        device.toggle.checked = status === "ON";
-        device.card.classList.toggle("off", status !== "ON");
-
-        if (status === action) {
-          device.note.textContent = "";
-          return;
-        }
-      }
-
-      device.note.textContent =
-        "Chưa xác nhận được trạng thái thiết bị. Vui lòng thử lại.";
     } catch (error) {
-      device.note.textContent = error.message;
-    } finally {
-      device.card.classList.remove("loading");
       device.toggle.disabled = false;
+      device.card.classList.remove("home-loading");
+      device.note.textContent = error.message;
     }
   }
 
@@ -268,7 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
       device.toggle.disabled = true;
 
       device.note = document.createElement("p");
-      device.note.classList.add("loading-text");
+      device.note.classList.add("home-loading-text");
       device.note.setAttribute("role", "status");
       device.note.textContent = "Đang tải trạng thái...";
       device.card.append(device.note);
@@ -297,17 +301,13 @@ document.addEventListener("DOMContentLoaded", () => {
           continue;
         }
 
-        if (!["ON", "OFF"].includes(record.current_status)) {
-          device.note.textContent = "Trạng thái thiết bị không hợp lệ.";
-          continue;
-        }
 
         device.id = record.id;
         device.status = record.current_status;
         device.toggle.checked = record.current_status === "ON";
 
         device.card.classList.toggle(
-          "off",
+          "home-off",
           record.current_status !== "ON"
         );
 

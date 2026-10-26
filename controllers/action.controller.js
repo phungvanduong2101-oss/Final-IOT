@@ -1,4 +1,4 @@
-const { Op, Sequelize } = require("sequelize");
+const { Op, Sequelize , where: sqlWhere, fn, col } = require("sequelize");
 const ActionHistory = require("../models/action-history.model");
 const Device = require("../models/device.model");
 module.exports.getActions = async (req, res) => {
@@ -6,71 +6,72 @@ module.exports.getActions = async (req, res) => {
     const {
       search = "",
       device = "ALL",
-      status = "ALL",
+      status = "ALL", 
+      items = "10", 
+      sort = "DESC",
     } = req.query;
 
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
-
-    const requestedLimit = Number(req.query.limit);
-    const limit = requestedLimit;
-
-    const sort = req.query.sort || "DESC";
-    const offset = (page - 1) * limit;
-
-    const where = {};
+ 
+    const limit = Number(items);
+    const offset = (page - 1) * limit; 
+ 
+    const where = {}; 
 
     if (status !== "ALL") {
       where.status = status;
     }
 
     if (device !== "ALL") {
-      where["$device.id$"] = device;
-    }
+      where.device_id = Number(device);
+    } 
 
-    if (search.trim()) {
-      let keyword = `%${search.trim()}%`;
-      keyword = keyword.toLowerCase();
-      where[Op.or] = [
-        {
-          action: {
-            [Op.like]: keyword,
-          },
-        },
-        Sequelize.where(
-          Sequelize.cast(
-            Sequelize.col("ActionHistory.created_at"),
-            "CHAR"
-          ),
-          {
-            [Op.like]: keyword,
-          }
-        ),
-      ];
-    }
-
-    const result = await ActionHistory.findAndCountAll({
+    if(search.trim()) { 
+      where[Op.or] = [  
+        {"$device.name$": { [Op.like]: `%${search.trim()}%` } },
+        {action: {[Op.like]: `%${search.trim()}%`}}, 
+        {status: {[Op.like]: `%${search.trim()}%`}}, 
+        sqlWhere( 
+          fn( 
+            "DATE_FORMAT", 
+            fn("CONVERT_TZ",col("ActionHistory.created_at"),"+00:00","+07:00"), 
+            "%H:%i:%s %d/%m/%Y"
+          ), 
+          { [Op.like]: `%${search.trim()}%` }
+        )
+      ]
+    } 
+    const result = await ActionHistory.findAll({ 
       where,
       include: [
         {
-          association: "device",
-          attributes: ["name"],
-          required: true,
+          model: Device, 
+          as: "device",
+          attributes: ["id", "name"],
         },
       ],
       limit,
       offset,
-      order: [
-        ["created_at", sort],
-        ["id", sort],
-      ],
+      order: [["created_at", sort]],
+    }) 
+ 
+    const total = await ActionHistory.count({ 
+    where, 
+    include : [
+      {
+        model: Device, 
+        as: "device",
+        attributes: ["id", "name"],
+      },
+    ] 
     });
-
+    const totalPages = Math.ceil(total / limit);
     return res.json({
       code: "success",
-      data: result.rows,
-      totalPages: Math.ceil(result.count / limit),
+      data: result,
+      totalPages,
       currentPage: page, 
-      total: result.count, 
+      total,
       skip: offset,
     });
   } catch (error) {

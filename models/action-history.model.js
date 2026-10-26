@@ -25,9 +25,9 @@ const ActionHistory = sequelize.define("ActionHistory", {
   status: {
     type: DataTypes.STRING(20),
     allowNull: false,
-    defaultValue: "PENDING",
+    defaultValue: "WAITING",
     validate: {
-      isIn: [["PENDING", "WAITING", "SUCCESS", "FAILED"]]
+      isIn: [["TIMEOUT", "WAITING", "SUCCESS", "FAILED"]]
     }
   },
 

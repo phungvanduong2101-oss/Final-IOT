@@ -1,7 +1,8 @@
 
 const sensorsData = require("../models/sensor-data.model");
-const { Op, Sequelize } = require("sequelize");
+const { Op, Sequelize, where: sqlWhere, fn, col } = require("sequelize");
 const Sensor = require("../models/sensor.model");
+const SensorData = require("../models/sensor-data.model");
 module.exports.getSensorsData = async (req, res) => {
   try {
     const dataTemperature = await sensorsData.findAll({
@@ -35,97 +36,70 @@ module.exports.getSensorsData = async (req, res) => {
 
 module.exports.getSensors = async (req, res) => {
   try {
-    const { search, searchBy, items, sort } = req.query;
-    const page = parseInt(req.query.page) || 1;
-    const offset = (page - 1) * items;
-   
-    console.log(search, searchBy, items, sort);
+    const {
+      search = "",
+      searchBy = "ALL",
+      items = "10",
+      sort = "DESC",
+    } = req.query;
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+
+    const limit = Number(items);
+    const offset = (page - 1) * limit;
+
     const where = {};
 
-
-    if (searchBy == 'ALL') {
+    if (searchBy === 'ALL') {
       where[Op.or] = [
         Sequelize.where(
-          Sequelize.cast(Sequelize.col("value"), "CHAR"),
-          { [Op.like]: `%${search}%` }
+          Sequelize.cast(Sequelize.col("SensorData.value"), "CHAR"),
+          { [Op.like]: `%${search.trim()}%` },
         ),
-        { measurement_type: { [Op.like]: `%${search}%` } },
-        Sequelize.where(
-          Sequelize.cast(Sequelize.col("created_at"), "CHAR"),
-          { [Op.like]: `%${search}%` }
-        )
-      ]
-    } else if (searchBy == 'Temperature') {
-      where.measurement_type = 'Temperature';
-      where[Op.or] = [
-        Sequelize.where(
-          Sequelize.cast(Sequelize.col("value"), "CHAR"),
-          { [Op.like]: `%${search}%` }
-        ),
-        Sequelize.where(
-          Sequelize.cast(Sequelize.col("created_at"), "CHAR"),
-          { [Op.like]: `%${search}%` }
-        )
-      ]
-    } else if (searchBy == 'Humidity') {
-      where.measurement_type = 'Humidity';
-      where[Op.or] = [
-        Sequelize.where(
-          Sequelize.cast(Sequelize.col("value"), "CHAR"),
-          { [Op.like]: `%${search}%` }
-        ),
-        Sequelize.where(
-          Sequelize.cast(Sequelize.col("created_at"), "CHAR"),
-          { [Op.like]: `%${search}%` }
-        )
-      ]
-    } else if (searchBy == 'Light') {
-      where.measurement_type = 'Light';
-      where[Op.or] = [
-        Sequelize.where(
-          Sequelize.cast(Sequelize.col("value"), "CHAR"),
-          { [Op.like]: `%${search}%` }
-        ),
-        Sequelize.where(
-          Sequelize.cast(Sequelize.col("created_at"), "CHAR"),
-          { [Op.like]: `%${search}%` }
-        )
-      ]
-    } else if (searchBy === "Time" && search?.trim()) {
-      where[Op.and] = [
-        Sequelize.where(
-          Sequelize.fn(
+        { measurement_type: { [Op.like]: `%${search.trim()}%` } },
+        sqlWhere(
+          fn(
             "DATE_FORMAT",
-            Sequelize.fn(
-              "CONVERT_TZ",
-              Sequelize.col("created_at"),
-              "+00:00",
-              "+07:00"
-            ),
+            fn("CONVERT_TZ", col("SensorData.created_at"), "+00:00", "+07:00"),
             "%H:%i:%s %d/%m/%Y"
           ),
           { [Op.like]: `%${search.trim()}%` }
         )
-      ];
+      ]
+    } else {
+      where.measurement_type = searchBy.trim();
+      where[Op.or] = [
+        Sequelize.where(
+          Sequelize.cast(Sequelize.col("SensorData.value"), "CHAR"),
+          { [Op.like]: `%${search.trim()}%` },
+        ),
+        sqlWhere(
+          fn(
+            "DATE_FORMAT",
+            fn("CONVERT_TZ", col("SensorData.created_at"), "+00:00", "+07:00"),
+            "%H:%i:%s %d/%m/%Y"
+          ),
+          { [Op.like]: `%${search.trim()}%` }
+        )
+      ]
     }
-    const sensors = await sensorsData.findAll({
+
+    const sensors = await SensorData.findAll({
       where,
-      limit: Number(items),
-      offset: offset,
-      order: [["created_at", sort]],
-      include: {
-        model: Sensor,
-        as: "sensor",
-        attributes: ["type"]
-      }
+      limit,
+      offset,
+      order: [["created_at", sort], ["id", sort]],
+      include: [
+        {
+          model: Sensor,
+          as: "sensor",
+          attributes: ["id", "type", "name"],
+        }
+      ]
+
     });
 
-    const count = await sensorsData.count({
-      where,
-    });
-
-    const totalPages = Math.ceil(count / items);
-
+    const count = await SensorData.count({ where });
+    const totalPages = Math.ceil(count / limit);
 
     res.json({
       code: "success",

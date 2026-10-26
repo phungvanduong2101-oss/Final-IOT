@@ -2,63 +2,66 @@ extends layouts/default.pug
 
 include partials/icons.pug
 
+block styles
+  link(rel="stylesheet" href="/css/history-action.css")
+
 block content
-  .ds-page
-    .ha-toolbar
-      .ha-search-wrap
+  .history-action-page
+    .history-action-toolbar
+      .history-action-search-wrap
         input#ha-search(
           type="text"
           placeholder="Search..."
           autocomplete="off"
         )
-        +searchIcon()
+        +searchIcon("history-action-search-icon")
 
-      .ha-filters
-        .ha-filter-group
+      .history-action-filters
+        .history-action-filter-group
           label(for="ha-device") Device
 
-          select#ha-device.ha-select
+          select#ha-device.history-action-select
             option(value="ALL") ALL
             option(value="1") Quạt
-            option(value="2") Đèn
-            option(value="3") Điều hòa
+            option(value="3") Đèn
+            option(value="2") Điều hòa
 
-        //.ha-filter-group
+        //.history-action-filter-group
           label(for="ha-action") Action
 
-          select#ha-action.ha-select
+          select#ha-action.history-action-select
             option(value="ALL") ALL
             option(value="ON") ON
             option(value="OFF") OFF
 
-        .ha-filter-group
+        .history-action-filter-group
           label(for="ha-status") Status
 
-          select#ha-status.ha-select
+          select#ha-status.history-action-select
             option(value="ALL") ALL
             option(value="SUCCESS") SUCCESS
             option(value="FAILED") FAILED
-            option(value="WAITING") WAITING
+            option(value="TIMEOUT") TIMEOUT
 
-        .ha-filter-group
+        .history-action-filter-group
           label(for="ha-sort") Sort
 
-          select#ha-sort.ha-select
+          select#ha-sort.history-action-select
             option(value="DESC") Newest
             option(value="ASC") Oldest  
 
-        .ha-filter-group
+        .history-action-filter-group
           label(for="ha-items") Items
 
-          select#ha-items.ha-select
+          select#ha-items.history-action-select
             option(value="10") 10
             option(value="20") 20
             option(value="50") 50
          
-        button#ha-reset.ds-reset-btn(type="button") Đặt lại
+        button#ha-reset.history-action-reset-btn(type="button") Đặt lại
 
-    .ha-table-wrap
-      table.ha-table
+    .history-action-table-wrap
+      table.history-action-table
         thead
           tr
             th Device ID
@@ -70,10 +73,9 @@ block content
         tbody#ha-table-body
           tr
             td(colspan="5") Đang tải dữ liệu...
-    .ha-table-footer
-      #ha-summary.ha-summary Hiển thị 0–0 trên tổng 0 bản ghi
-      #ha-pagination.ha-pagination
+    .history-action-table-footer
+      #ha-summary.history-action-summary Hiển thị 0–0 trên tổng 0 bản ghi
+      #ha-pagination.history-action-pagination
 
 block scripts
-  script(src="/js/api.js")
   script(src="/js/history-action.js")
