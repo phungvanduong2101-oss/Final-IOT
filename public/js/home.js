@@ -180,7 +180,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!device) continue;
 
-      if (data.status === "SUCCESS") {
+      if (data.status === "SUCCESS") { 
+        device.status = data.state;
         device.toggle.checked = data.state === "ON";
         device.card.classList.toggle("home-off", data.state !== "ON");
         device.note.textContent = "Điều khiển thành công!";
@@ -270,7 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  async function loadDevices() {
+  async function loadDevices() { /*Tải trạng thái và gán các phần tử trong devices vs DOM tương ứng*/
     for (const device of devices) {
       device.toggle = document.getElementById(`${device.key}-toggle`);
       device.card = document.getElementById(`device-${device.key}`);
@@ -279,7 +280,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       device.note = document.createElement("p");
       device.note.classList.add("home-loading-text");
-      device.note.setAttribute("role", "status");
       device.note.textContent = "Đang tải trạng thái...";
       device.card.append(device.note);
 

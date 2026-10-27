@@ -17,7 +17,7 @@ const swaggerSpec = swaggerJsdoc({
   },
 
   // Đường dẫn đến các file chứa comment mô tả API.
-  apis: ["./routes/**/*.js"],
+  apis: ["./routes/api.route.js"],
 });
 
 module.exports = swaggerSpec;

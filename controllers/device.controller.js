@@ -87,10 +87,6 @@ module.exports.controlDevice = async (req, res) => {
 
           return res.json({
             code: "success",
-            data: {
-              idAction: history.id,
-              status: "WAITING",
-            },
           });
         } catch (error) {
           return res.status(500).json({
