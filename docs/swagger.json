@@ -20,7 +20,41 @@
         ],
         "responses": {
           "200": {
-            "description": "Trả về ba mảng Temperature, Humidity và Light"
+            "description": "Lấy dữ liệu thành công",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "success",
+                  "Temperature": [
+                    {
+                      "id": 301,
+                      "sensor_id": 1,
+                      "measurement_type": "Temperature",
+                      "value": 30.5,
+                      "created_at": "2026-10-27T03:00:00.000Z"
+                    }
+                  ],
+                  "Humidity": [
+                    {
+                      "id": 302,
+                      "sensor_id": 2,
+                      "measurement_type": "Humidity",
+                      "value": 65.2,
+                      "created_at": "2026-10-27T03:00:00.000Z"
+                    }
+                  ],
+                  "Light": [
+                    {
+                      "id": 303,
+                      "sensor_id": 3,
+                      "measurement_type": "Light",
+                      "value": 450,
+                      "created_at": "2026-10-27T03:00:00.000Z"
+                    }
+                  ]
+                }
+              }
+            }
           },
           "500": {
             "description": "Lỗi máy chủ"
@@ -36,7 +70,31 @@
         ],
         "responses": {
           "200": {
-            "description": "Lấy danh sách thành công"
+            "description": "Lấy danh sách thành công",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "success",
+                  "data": [
+                    {
+                      "id": 1,
+                      "name": "Quạt",
+                      "current_status": "ON"
+                    },
+                    {
+                      "id": 2,
+                      "name": "Điều hòa",
+                      "current_status": "OFF"
+                    },
+                    {
+                      "id": 3,
+                      "name": "Đèn",
+                      "current_status": "OFF"
+                    }
+                  ]
+                }
+              }
+            }
           },
           "500": {
             "description": "Lỗi máy chủ"
@@ -58,7 +116,8 @@
             "description": "ID thiết bị cần điều khiển",
             "schema": {
               "type": "integer"
-            }
+            },
+            "example": 1
           }
         ],
         "requestBody": {
@@ -184,7 +243,32 @@
         ],
         "responses": {
           "200": {
-            "description": "Lấy dữ liệu thành công"
+            "description": "Lấy dữ liệu thành công",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "success",
+                  "data": [
+                    {
+                      "id": 301,
+                      "sensor_id": 1,
+                      "measurement_type": "Temperature",
+                      "value": 30.5,
+                      "created_at": "2026-10-27T03:00:00.000Z",
+                      "sensor": {
+                        "id": 1,
+                        "type": "Temperature",
+                        "name": "Cảm biến nhiệt độ"
+                      }
+                    }
+                  ],
+                  "currentPage": 1,
+                  "totalPages": 1,
+                  "totalItems": 1,
+                  "skip": 0
+                }
+              }
+            }
           },
           "500": {
             "description": "Lỗi máy chủ"
@@ -272,7 +356,31 @@
         ],
         "responses": {
           "200": {
-            "description": "Lấy lịch sử thành công"
+            "description": "Lấy lịch sử thành công",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "success",
+                  "data": [
+                    {
+                      "id": 123,
+                      "device_id": 1,
+                      "action": "ON",
+                      "status": "SUCCESS",
+                      "created_at": "2026-10-27T03:00:00.000Z",
+                      "device": {
+                        "id": 1,
+                        "name": "Quạt"
+                      }
+                    }
+                  ],
+                  "totalPages": 1,
+                  "currentPage": 1,
+                  "total": 1,
+                  "skip": 0
+                }
+              }
+            }
           },
           "500": {
             "description": "Không tải được lịch sử thao tác"
