@@ -276,7 +276,7 @@ body {
 /* Trạng thái loading */
 
 .home-device-card.home-loading {
-  pointer-events: none;
+  pointer-events: none; /* khong cho click */
   cursor: wait;
 }
 

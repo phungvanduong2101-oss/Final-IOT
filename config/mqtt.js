@@ -51,14 +51,14 @@ client.on("message", async (topic, message) => {
                     records.push({
                         sensor_id: record.sensor_id,
                         measurement_type: 'Temperature',
-                        value: record.temperature,
+                        value: Number(record.temperature).toFixed(1),
                         created_at: new Date()
                     });
 
                     records.push({
                         sensor_id: record.sensor_id,
                         measurement_type: 'Humidity',
-                        value: record.humidity,
+                        value: Number(record.humidity).toFixed(1),
                         created_at: new Date()
                     });
 

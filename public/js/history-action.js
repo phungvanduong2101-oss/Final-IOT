@@ -53,7 +53,8 @@
         const statusClass = {
           SUCCESS: "history-action-status-success",
           FAILED: "history-action-status-failed",
-          WAITING: "history-action-status-waiting",
+          WAITING: "history-action-status-waiting", 
+          TIMEOUT: "history-action-status-timeout",
         }[row.status] || "";
 
         const tr = document.createElement("tr");
@@ -72,7 +73,7 @@
             className: `history-action-col-action ${actionClass}`,
           },
           {
-            text: row.status === "WAITING" ? "WAITING..." : row.status,
+            text: row.status === "WAITING" ? "WAITING" : row.status,
             className: `history-action-col-status ${statusClass}`,
           },
           {

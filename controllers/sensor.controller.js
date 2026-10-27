@@ -65,13 +65,16 @@ module.exports.getSensors = async (req, res) => {
           { [Op.like]: `%${search.trim()}%` }
         )
       ]
-    } else {
+    } else if (searchBy !== 'Time') {
       where.measurement_type = searchBy.trim();
       where[Op.or] = [
         Sequelize.where(
           Sequelize.cast(Sequelize.col("SensorData.value"), "CHAR"),
           { [Op.like]: `%${search.trim()}%` },
         ),
+      ]
+    } else if (searchBy === 'Time') {
+      where[Op.or] = [
         sqlWhere(
           fn(
             "DATE_FORMAT",

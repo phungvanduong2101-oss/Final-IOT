@@ -180,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!device) continue;
 
-      if (data.status === "SUCCESS") { 
+      if (data.status === "SUCCESS") {
         device.toggle.checked = data.state === "ON";
         device.card.classList.toggle("home-off", data.state !== "ON");
         device.note.textContent = "Điều khiển thành công!";
@@ -194,8 +194,8 @@ document.addEventListener("DOMContentLoaded", () => {
       device.timer = null;
 
       device.toggle.disabled = false;
-      device.card.classList.remove("home-loading"); 
-      if(data.status === "SUCCESS") {
+      device.card.classList.remove("home-loading");
+      if (data.status === "SUCCESS") {
         device.timer = setTimeout(() => {
           device.note.textContent = "";
         }, 3000);
@@ -249,13 +249,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
       device.note.textContent = "Đang chờ thiết bị...";
 
-      // Chờ Socket phản hồi tối đa 5 giây
+      // Chờ Socket phản hồi tối đa 7 giây
       device.timer = setTimeout(() => {
         device.toggle.disabled = false;
         device.card.classList.remove("home-loading");
-        device.note.textContent = "Thiết bị không phản hồi!";
+        device.note.textContent = "Quá thời gian chờ!";
         device.timer = null;
-      }, 5000);
+
+        setTimeout(() => {
+          device.note.textContent = "";
+        }, 2000);
+
+      }, 7000);
+
 
     } catch (error) {
       device.toggle.disabled = false;
