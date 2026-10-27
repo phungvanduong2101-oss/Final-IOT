@@ -1,20 +1,9 @@
 const deviceModel = require("../models/device.model");
 const actionHistoryModel = require("../models/action-history.model");
 const mqttClient = require("../config/mqtt");
-module.exports.getDeviceStatus = async (req, res) => {
-  try {
-    const device = await deviceModel.findByPk(req.params.id);
 
-    res.json({
-      code: "success",
-      device,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-}
 
-module.exports.getDevices = async (req, res) => {
+module.exports.getDevicesStatus = async (req, res) => {
   try {
     const devices = await deviceModel.findAll();
     res.json({

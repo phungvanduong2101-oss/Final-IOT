@@ -1,7 +1,7 @@
 const { Op, Sequelize , where: sqlWhere, fn, col } = require("sequelize");
 const ActionHistory = require("../models/action-history.model");
 const Device = require("../models/device.model");
-module.exports.getActions = async (req, res) => {
+module.exports.getActionsHistory = async (req, res) => {
   try {
     const {
       search = "",

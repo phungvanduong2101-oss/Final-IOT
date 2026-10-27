@@ -31,7 +31,7 @@
     });
 
     try {
-      const response = await fetch(`/api/actions?${params}`, {
+      const response = await fetch(`/api/actions-history?${params}`, {
         signal: controller.signal,
       });
 

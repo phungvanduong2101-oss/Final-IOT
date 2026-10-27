@@ -21,7 +21,7 @@
     });
 
     try {
-      const response = await fetch(`/api/sensors?${params}`);
+      const response = await fetch(`/api/sensors-data?${params}`);
       const result = await response.json();
 
       if (!response.ok || result.code !== "success") {

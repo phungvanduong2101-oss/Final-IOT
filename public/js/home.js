@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function loadSensors() {
-    const response = await fetch("/api/sensors-data/chart", {
+    const response = await fetch("/api/sensors-data/latest", {
       signal: AbortSignal.timeout(10000),
     });
 
@@ -289,7 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const response = await fetch("/api/devices", {
+      const response = await fetch("/api/devices/status", {
         signal: AbortSignal.timeout(10000),
       });
 

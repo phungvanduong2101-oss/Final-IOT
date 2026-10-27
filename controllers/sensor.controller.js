@@ -3,7 +3,7 @@ const sensorsData = require("../models/sensor-data.model");
 const { Op, Sequelize, where: sqlWhere, fn, col } = require("sequelize");
 const Sensor = require("../models/sensor.model");
 const SensorData = require("../models/sensor-data.model");
-module.exports.getSensorsData = async (req, res) => {
+module.exports.getSensorsDataLatest = async (req, res) => {
   try {
     const dataTemperature = await sensorsData.findAll({
       where: { measurement_type: "Temperature" },
@@ -34,7 +34,7 @@ module.exports.getSensorsData = async (req, res) => {
   }
 };
 
-module.exports.getSensors = async (req, res) => {
+module.exports.getSensorsData = async (req, res) => {
   try {
     const {
       search = "",
